@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, user-scalable=no"
+  />
+  <title>Car Discovery QR</title>
+
+  <link rel="stylesheet" href="./style.css" />
+
+  <!-- QR Scanner -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+</head>
+
+<body>
+  <!-- Start Screen -->
+  <div id="start-screen" class="screen">
+    <div class="panel start-panel">
+      <div class="badge">QR MINI CATALOG</div>
+      <h1>Car Discovery</h1>
+      <p>
+        ホールの中にある車を探して、車の近くにあるQRコードをスキャンしよう。
+        気になることを選んでいくと、あなただけのミニカタログが作れます。
+      </p>
+      <button id="start-button">スタート</button>
+      <p class="note">カメラの使用を許可してください。</p>
+    </div>
+  </div>
+
+  <!-- Main UI -->
+  <div id="ui">
+    <div class="top-bar">
+      <div>
+        <div class="title">Car Discovery</div>
+        <div id="progress">0 / 3 発見</div>
+      </div>
+
+      <div class="top-actions">
+        <button id="open-cards-button" class="small-button">カタログ</button>
+        <button id="reset-button" class="small-button">リセット</button>
+      </div>
+    </div>
+
+    <!-- Guide -->
+    <div id="guide-card" class="bottom-card">
+      <h2>車の近くのQRコードを探そう</h2>
+      <p>
+        車の近くにあるQRコードにカメラを向けてください。
+      </p>
+
+      <div id="collection-row" class="collection-row"></div>
+    </div>
+
+    <!-- Discovery -->
+   　<!-- Discovery -->
+      <div id="discovery-card" class="bottom-card hidden">
+      <div class="burst">DISCOVERED</div>
+      <h2>見つけました</h2>
+      <h3 id="discovery-car-name"></h3>
+
+      <button id="show-detail-button">車を見てみる</button>
+      <button id="continue-scan-button" class="secondary-button">
+        戻る
+      </button>
+    </div>
+
+    <!-- Detail -->
+    <div id="detail-card" class="bottom-card hidden">
+      <button id="close-detail-button" class="close-button">×</button>
+
+      <h2 id="detail-car-name"></h2>
+      <p id="detail-short" class="lead"></p>
+      <p id="detail-description"></p>
+
+      <button id="make-card-button">この車について質問する</button>
+      <button id="back-to-scan-button" class="secondary-button">
+        探索に戻る
+      </button>
+    </div>
+
+    <!-- Question Panel -->
+    <div id="question-panel" class="full-panel hidden">
+      <div class="full-panel-inner">
+        <button id="close-question-button" class="close-button panel-close">×</button>
+
+        <div class="badge">LOOK AROUND</div>
+        <h2 id="question-panel-title">どこを見てみますか？</h2>
+        <p class="panel-lead" id="question-panel-lead">
+          実車を見たり、ドアを開けたり、乗り込んだりしながら、気になる見どころを選んでください。
+        </p>
+
+        <div id="question-progress" class="question-progress">質問 1 / 4</div>
+
+        <div id="question-box" class="question-box">
+          <h3 id="question-text">この車について、何が気になりますか？</h3>
+          <div id="choice-options" class="choice-grid"></div>
+        </div>
+
+        <div id="answer-box" class="answer-box hidden">
+          <div class="answer-label">ANSWER</div>
+          <h3 id="answer-title"></h3>
+          <p id="answer-text"></p>
+
+          <button id="next-question-button">次の質問へ</button>
+          <button id="finish-questions-button" class="secondary-button">
+            質問を終える
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mini Catalog Collection Screen -->
+    <div id="cards-screen" class="full-panel hidden">
+      <div class="full-panel-inner cards-inner">
+        <button id="close-cards-button" class="close-button panel-close">×</button>
+
+        <div class="badge">MY MINI CATALOG</div>
+        <h2>ミニカタログ コレクション</h2>
+        <p class="panel-lead">
+          横にスワイプして、集めたミニカタログを見てください。
+          タップすると大きく表示されます。
+        </p>
+
+        <div id="card-carousel" class="card-carousel"></div>
+      </div>
+    </div>
+
+    <!-- Mini Catalog Detail Modal -->
+    <div id="card-modal" class="modal hidden">
+      <div class="modal-backdrop" id="modal-backdrop"></div>
+      <div class="modal-card">
+        <button id="close-modal-button" class="close-button modal-close">×</button>
+        <div id="modal-card-content"></div>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div id="error-message" class="error-message hidden"></div>
+  </div>
+
+  <!-- QR Camera Layer -->
+  <div id="qr-reader" aria-label="QRコード読み取りカメラ"></div>
+
+  <script src="./app.js"></script>
+</body>
+</html>

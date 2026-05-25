@@ -1,0 +1,41 @@
+[
+  {
+    "id": "car01",
+    "targetIndex": 0,
+    "targetId": "target-car01",
+    "name": "Honda Prelude",
+    "rarity": "★★★★★",
+    "type": "LEGENDARY",
+    "cardColor": "prelude",
+    "cardImage": "./assets/prelude-card.png",
+    "short": "走る時間そのものを楽しむためのスペシャリティスポーツ。",
+    "description": "Honda Preludeは、低く流れるようなシルエットと、運転席に座ったときの特別感が魅力のスペシャリティスポーツです。展示車では、外観のライン、運転席からの見え方、内装の雰囲気、後席やトランクの使い勝手を実際に確認できます。",
+    "cardCatch": "走る時間を特別にする一台"
+  },
+  {
+    "id": "car02",
+    "targetIndex": 1,
+    "targetId": "target-car02",
+    "name": "Honda N-BOX",
+    "rarity": "★★★★★",
+    "type": "SPECIAL K-car",
+    "cardColor": "nbox",
+    "cardImage": "./assets/nbox-card.png",
+    "short": "毎日の使いやすさと室内の広さが魅力の軽自動車。",
+    "description": "Honda N-BOXは、コンパクトな外観からは想像しにくい室内の広さと、日常での使いやすさが魅力の軽自動車です。展示車では、スライドドア、後席、荷室、収納、運転席からの見晴らしを実際に確認できます。",
+    "cardCatch": "暮らしにすっと入ってくる一台"
+  },
+  {
+    "id": "car03",
+    "targetIndex": 2,
+    "targetId": "target-car03",
+    "name": "Honda Super-ONE",
+    "rarity": "★★★★★",
+    "type": "EV Sport",
+    "cardColor": "superone",
+    "cardImage": "./assets/superone-card.png",
+    "short": "小さなボディにEVの新しさと遊び心を詰め込んだ小型EV。",
+    "description": "Honda Super-ONEは、小型EVらしい新しさと、BOOSTモードに象徴される遊び心が魅力のモデルです。N-ONEとは別の小型EVとして、街中での扱いやすさ、運転席まわりのワクワク感、EV Sportらしい世界観を楽しめます。",
+    "cardCatch": "小さなEVに走る楽しさを詰め込んだ一台"
+  }
+]
