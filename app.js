@@ -546,8 +546,9 @@ function normalizeCarData(raw, index = 0) {
     return null;
   }
 
-  const id = get("id", "ID", "車両ID", "車ID") || `car${String(index + 1).padStart(2, "0")}`;
+  const id = get("carId", "id", "ID", "車両ID", "車ID") || `car${String(index + 1).padStart(2, "0")}`;
   const name = get("name", "車種名", "車名", "モデル名");
+  const category = get("category", "type", "タイプ", "カテゴリ", "カテゴリー") || "SPECIAL";
   const carImage = get("carImage", "imageUrl", "画像URL", "車画像URL", "車の画像URL", "車の絵URL");
   const cardImage = get("cardImage", "カード画像URL", "カード台紙込み画像URL");
 
@@ -559,11 +560,13 @@ function normalizeCarData(raw, index = 0) {
     id,
     name,
     rarity: get("rarity", "レア度") || "★★★★★",
-    type: get("type", "タイプ", "カテゴリ", "カテゴリー") || "SPECIAL",
-    cardColor: get("cardColor", "カード色") || "auto",
-    cardImage: cardImage || carImage || "./assets/prelude-card.png",
+    type: category,
+    category,
+    cardColor: get("cardColor", "カード色") || "template",
+    cardImage: cardImage || "./assets/card-template.png",
+    templateImage: "./assets/card-template.png",
     carImage: carImage || cardImage || "",
-    short: get("short", "短い説明", "ひとこと説明") || `${name}の展示車です。`,
+    short: get("shortDescription", "short", "短い説明", "ひとこと説明") || `${name}の展示車です。`,
     description:
       get("description", "詳細説明", "説明", "見どころ") ||
       `${name}の外観、運転席、後席、荷室などを実際に見ながら、気になるポイントを確認できます。`,
@@ -1105,10 +1108,14 @@ function finishQuestionsAndCreateCatalog() {
     carName: currentCar.name,
     rarity: currentCar.rarity,
     type: currentCar.type,
+    category: currentCar.category || currentCar.type,
     cardColor: currentCar.cardColor,
-    cardImage: currentCar.cardImage,
+    cardImage: currentCar.cardImage || "./assets/card-template.png",
+    templateImage: currentCar.templateImage || "./assets/card-template.png",
     carImage: currentCar.carImage || currentCar.cardImage,
-    cardCatch: "あなただけのミニカタログ",
+    short: currentCar.short || "",
+    description: currentCar.description || "",
+    cardCatch: currentCar.cardCatch || "あなただけのミニカタログ",
     personalText: catalogText,
     interests: tags,
     answers: currentAnswers,
@@ -1264,49 +1271,31 @@ function renderCardCarousel() {
 
 function createTradingCardElement(card) {
   const createdDate = formatDate(card.createdAt);
-  const tagsHtml = card.interests.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("");
+  const tagsHtml = (card.interests || []).map((tag) => `<span>${escapeHtml(tag)}</span>`).join("");
+  const title = `HONDA ${String(card.carName || "").toUpperCase()}`;
+  const category = card.category || card.type || "SPECIAL";
+  const bodyText = card.personalText || card.description || card.short || "";
+  const catchText = card.cardCatch || "あなただけのミニカタログ";
+  const templateSrc = card.templateImage || card.cardImage || "./assets/card-template.png";
 
-  // 店舗追加車両: 車の絵だけでもカードらしく見える自動台紙
-  if (card.cardColor === "auto" || !card.cardImage || card.cardImage === card.carImage) {
-    const el = document.createElement("div");
-    el.className = "catalog-card-image catalog-card-auto";
-    el.innerHTML = `
-      <div class="auto-card-top">
-        <div class="auto-brand">HONDA</div>
-        <div class="auto-rarity">${escapeHtml(card.rarity || "★★★★★")}</div>
-      </div>
-      <div class="auto-car-stage">
-        ${card.carImage ? `<img src="${escapeHtml(card.carImage)}" alt="${escapeHtml(card.carName)}">` : ""}
-      </div>
-      <div class="auto-title-band">
-        <div class="auto-type">${escapeHtml(card.type || "SPECIAL")}</div>
-        <div class="auto-car-name">${escapeHtml(card.carName)}</div>
-      </div>
-      <div class="catalog-card-text auto-card-text">
-        <p>${escapeHtml(card.personalText)}</p>
-        <div class="catalog-card-tags">
-          ${tagsHtml}
-          <span>GET ${createdDate}</span>
-        </div>
-      </div>
-    `;
-    return el;
-  }
-
-  // 既存3車種: これまで通り、完成済みカード画像を使う
   const el = document.createElement("div");
-  el.className = "catalog-card-image";
-  el.style.backgroundImage = `url("${card.cardImage}")`;
+  el.className = "catalog-card-image catalog-card-template";
   el.innerHTML = `
-    <div class="catalog-card-text">
-      <p>${escapeHtml(card.personalText)}</p>
+    <img class="template-card-base" src="${escapeHtml(templateSrc)}" alt="カード台紙">
+    <div class="template-card-photo-frame">
+      ${card.carImage ? `<img class="template-card-photo" src="${escapeHtml(card.carImage)}" alt="${escapeHtml(card.carName)}">` : ""}
+    </div>
+    <div class="template-card-category">${escapeHtml(category)}</div>
+    <div class="template-card-title">${escapeHtml(title)}</div>
+    <div class="template-card-description">
+      <p class="template-card-catch">${escapeHtml(catchText)}</p>
+      <p class="template-card-body">${escapeHtml(bodyText)}</p>
       <div class="catalog-card-tags">
         ${tagsHtml}
         <span>GET ${createdDate}</span>
       </div>
     </div>
   `;
-
   return el;
 }
 
