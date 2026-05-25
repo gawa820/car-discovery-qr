@@ -756,10 +756,10 @@ function checkInitialCarFromUrl() {
   const car = cars.find((item) => item.id === carId);
   if (!car) return;
 
-  currentCar = car;
-  discoveredIds.add(car.id);
-  saveCollection();
-  renderCollection();
+  // 外部のカメラアプリでQRを読んで ?car=car04 のURLから開いた場合も、
+  // チェックを付けるだけでなく、通常のQR読み取り時と同じ発見画面を表示する。
+  hideError();
+  discoverCar(car);
 }
 
 function discoverCar(car) {
