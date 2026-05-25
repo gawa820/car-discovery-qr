@@ -959,3 +959,170 @@ a-scene {
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.88);
 }
+
+/* ======================================================
+   Fixed Template Trading Card (Honda frame)
+   ====================================================== */
+
+.catalog-card-image.catalog-card-template {
+  position: relative;
+  flex: 0 0 78%;
+  max-width: 320px;
+  min-width: 260px;
+  aspect-ratio: 1024 / 1700;
+  scroll-snap-align: center;
+  border-radius: 22px;
+  background: transparent;
+  overflow: hidden;
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.52),
+    0 0 0 1px rgba(255, 255, 255, 0.14);
+  transform: perspective(900px) rotateY(-4deg);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.catalog-card-image.catalog-card-template:active {
+  transform: perspective(900px) rotateY(0deg) scale(0.98);
+}
+
+.template-card-base {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.template-card-photo-frame {
+  position: absolute;
+  left: 3.8%;
+  top: 3.4%;
+  width: 92.5%;
+  height: 38.8%;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.template-card-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(1.02) contrast(1.02);
+}
+
+.template-card-category {
+  position: absolute;
+  left: 69.5%;
+  top: 4.2%;
+  width: 24.8%;
+  min-height: 3.6%;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: clamp(9px, 1.55vw, 16px);
+  line-height: 1.1;
+  font-weight: 900;
+  color: #f5cc53;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+.template-card-title {
+  position: absolute;
+  left: 6.2%;
+  top: 51.6%;
+  width: 87.6%;
+  min-height: 6.5%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: "Arial Black", "Helvetica Neue", "Noto Sans JP", sans-serif;
+  font-style: italic;
+  font-weight: 900;
+  font-size: clamp(28px, 4.2vw, 52px);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, #fafafa 0%, #d9d9d9 34%, #7a7a7a 52%, #e6e6e6 76%, #5f5f5f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: 1.25px rgba(55, 55, 55, 0.9);
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.45),
+    0 3px 5px rgba(0, 0, 0, 0.28);
+  transform: skewX(-8deg);
+}
+
+.template-card-description {
+  position: absolute;
+  left: 7%;
+  top: 61.7%;
+  width: 86%;
+  height: 28.2%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  color: #1f2937;
+}
+
+.template-card-catch {
+  margin: 0 0 8px;
+  font-size: clamp(12px, 2.3vw, 19px);
+  font-weight: 900;
+  line-height: 1.35;
+  color: #111827;
+}
+
+.template-card-body {
+  margin: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 6;
+  overflow: hidden;
+  font-size: clamp(11px, 2.1vw, 16px);
+  line-height: 1.5;
+  font-weight: 700;
+  color: #374151;
+}
+
+.catalog-card-template .catalog-card-tags {
+  margin-top: auto;
+  gap: 4px;
+}
+
+.catalog-card-template .catalog-card-tags span {
+  padding: 3px 6px;
+  font-size: 9px;
+  color: #111827;
+  background: rgba(17, 24, 39, 0.08);
+  border: 1px solid rgba(17, 24, 39, 0.12);
+}
+
+.large-catalog-card.catalog-card-template {
+  width: min(92vw, 420px);
+  max-width: none;
+  min-width: 0;
+  flex: none;
+  transform: none;
+}
+
+.large-catalog-card.catalog-card-template .template-card-category {
+  font-size: clamp(10px, 1.8vw, 18px);
+}
+
+.large-catalog-card.catalog-card-template .template-card-title {
+  font-size: clamp(33px, 5vw, 58px);
+}
+
+.large-catalog-card.catalog-card-template .template-card-catch {
+  font-size: clamp(14px, 2.5vw, 20px);
+}
+
+.large-catalog-card.catalog-card-template .template-card-body {
+  font-size: clamp(12px, 2.2vw, 17px);
+}
