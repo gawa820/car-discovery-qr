@@ -10,6 +10,16 @@ let currentQuestionIndex = 0;
 let currentAnswers = [];
 let selectedAnswer = null;
 
+// ================================
+// 店舗側の車両追加設定
+// ================================
+// Googleスプレッドシートを「ウェブに公開」したCSV URLを config.js に設定すると、
+// cars.json の代わりにスプレッドシートの車両データを読み込みます。
+// 未設定のときは、これまで通り cars.json を読み込みます。
+const CAR_DATA_CSV_URL =
+  (window.CAR_DISCOVERY_CONFIG && window.CAR_DISCOVERY_CONFIG.sheetCsvUrl) || "";
+
+
 const questionFlows = {
   car01: [
     {
@@ -413,6 +423,21 @@ async function main() {
 }
 
 async function loadCars() {
+  const params = new URLSearchParams(window.location.search);
+  const sheetFromUrl = params.get("sheet");
+  const csvUrl = sheetFromUrl || CAR_DATA_CSV_URL;
+
+  // 店舗運用時: Googleスプレッドシート公開CSVから読み込み
+  if (csvUrl) {
+    const sheetCars = await loadCarsFromCsv(csvUrl);
+    if (sheetCars.length > 0) {
+      return sheetCars;
+    }
+
+    console.warn("スプレッドシートに有効な車両データがありません。cars.json に戻します。");
+  }
+
+  // 開発・保険用: これまで通りローカルJSONから読み込み
   const response = await fetch("./cars.json", {
     cache: "no-store"
   });
@@ -427,7 +452,123 @@ async function loadCars() {
     throw new Error("cars.json は配列である必要があります");
   }
 
-  return data;
+  return data.map(normalizeCarData).filter(Boolean);
+}
+
+async function loadCarsFromCsv(csvUrl) {
+  const cacheBust = csvUrl.includes("?") ? `&t=${Date.now()}` : `?t=${Date.now()}`;
+  const response = await fetch(csvUrl + cacheBust, {
+    cache: "no-store"
+  });
+
+  if (!response.ok) {
+    throw new Error("スプレッドシートの車両データを読み込めませんでした");
+  }
+
+  const csvText = await response.text();
+  const rows = parseCsv(csvText);
+
+  if (rows.length <= 1) {
+    return [];
+  }
+
+  const headers = rows[0].map((header) => String(header || "").trim());
+  const bodyRows = rows.slice(1);
+
+  return bodyRows
+    .map((cells, index) => {
+      const row = {};
+      headers.forEach((header, cellIndex) => {
+        row[header] = cells[cellIndex] || "";
+      });
+      return normalizeCarData(row, index);
+    })
+    .filter(Boolean);
+}
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let value = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < text.length; i += 1) {
+    const char = text[i];
+    const next = text[i + 1];
+
+    if (char === '"') {
+      if (inQuotes && next === '"') {
+        value += '"';
+        i += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+
+    if (char === "," && !inQuotes) {
+      row.push(value);
+      value = "";
+      continue;
+    }
+
+    if ((char === "\n" || char === "\r") && !inQuotes) {
+      if (char === "\r" && next === "\n") i += 1;
+      row.push(value);
+      rows.push(row);
+      row = [];
+      value = "";
+      continue;
+    }
+
+    value += char;
+  }
+
+  row.push(value);
+  rows.push(row);
+
+  return rows.filter((items) => items.some((item) => String(item || "").trim() !== ""));
+}
+
+function normalizeCarData(raw, index = 0) {
+  const get = (...keys) => {
+    for (const key of keys) {
+      const value = raw[key];
+      if (value !== undefined && String(value).trim() !== "") {
+        return String(value).trim();
+      }
+    }
+    return "";
+  };
+
+  const visible = get("表示", "公開", "有効", "enabled", "visible", "公開する");
+  if (visible && /^(false|0|no|off|非表示|表示しない|しない)$/i.test(visible)) {
+    return null;
+  }
+
+  const id = get("id", "ID", "車両ID", "車ID") || `car${String(index + 1).padStart(2, "0")}`;
+  const name = get("name", "車種名", "車名", "モデル名");
+  const carImage = get("carImage", "imageUrl", "画像URL", "車画像URL", "車の画像URL", "車の絵URL");
+  const cardImage = get("cardImage", "カード画像URL", "カード台紙込み画像URL");
+
+  if (!name) {
+    return null;
+  }
+
+  return {
+    id,
+    name,
+    rarity: get("rarity", "レア度") || "★★★★★",
+    type: get("type", "タイプ", "カテゴリ", "カテゴリー") || "SPECIAL",
+    cardColor: get("cardColor", "カード色") || "auto",
+    cardImage: cardImage || carImage || "./assets/prelude-card.png",
+    carImage: carImage || cardImage || "",
+    short: get("short", "短い説明", "ひとこと説明") || `${name}の展示車です。`,
+    description:
+      get("description", "詳細説明", "説明", "見どころ") ||
+      `${name}の外観、運転席、後席、荷室などを実際に見ながら、気になるポイントを確認できます。`,
+    cardCatch: get("cardCatch", "キャッチコピー") || "あなただけのミニカタログ"
+  };
 }
 
 function setupButtons() {
@@ -966,6 +1107,7 @@ function finishQuestionsAndCreateCatalog() {
     type: currentCar.type,
     cardColor: currentCar.cardColor,
     cardImage: currentCar.cardImage,
+    carImage: currentCar.carImage || currentCar.cardImage,
     cardCatch: "あなただけのミニカタログ",
     personalText: catalogText,
     interests: tags,
@@ -1121,17 +1263,45 @@ function renderCardCarousel() {
 }
 
 function createTradingCardElement(card) {
+  const createdDate = formatDate(card.createdAt);
+  const tagsHtml = card.interests.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("");
+
+  // 店舗追加車両: 車の絵だけでもカードらしく見える自動台紙
+  if (card.cardColor === "auto" || !card.cardImage || card.cardImage === card.carImage) {
+    const el = document.createElement("div");
+    el.className = "catalog-card-image catalog-card-auto";
+    el.innerHTML = `
+      <div class="auto-card-top">
+        <div class="auto-brand">HONDA</div>
+        <div class="auto-rarity">${escapeHtml(card.rarity || "★★★★★")}</div>
+      </div>
+      <div class="auto-car-stage">
+        ${card.carImage ? `<img src="${escapeHtml(card.carImage)}" alt="${escapeHtml(card.carName)}">` : ""}
+      </div>
+      <div class="auto-title-band">
+        <div class="auto-type">${escapeHtml(card.type || "SPECIAL")}</div>
+        <div class="auto-car-name">${escapeHtml(card.carName)}</div>
+      </div>
+      <div class="catalog-card-text auto-card-text">
+        <p>${escapeHtml(card.personalText)}</p>
+        <div class="catalog-card-tags">
+          ${tagsHtml}
+          <span>GET ${createdDate}</span>
+        </div>
+      </div>
+    `;
+    return el;
+  }
+
+  // 既存3車種: これまで通り、完成済みカード画像を使う
   const el = document.createElement("div");
   el.className = "catalog-card-image";
   el.style.backgroundImage = `url("${card.cardImage}")`;
-
-  const createdDate = formatDate(card.createdAt);
-
   el.innerHTML = `
     <div class="catalog-card-text">
       <p>${escapeHtml(card.personalText)}</p>
       <div class="catalog-card-tags">
-        ${card.interests.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}
+        ${tagsHtml}
         <span>GET ${createdDate}</span>
       </div>
     </div>
