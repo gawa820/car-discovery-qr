@@ -597,9 +597,22 @@ function normalizeCarData(raw, index = 0) {
 
   const id = get("carId", "id", "ID", "車両ID", "車ID") || `car${String(index + 1).padStart(2, "0")}`;
   const name = get("name", "車種名", "車名", "モデル名");
-  const carImageRaw = get("carImage", "imageUrl", "画像URL", "車画像URL", "車の画像URL", "車の絵URL", "画像アップロード", "車画像アップロード", "imageFile", "fileUpload");
-  const carImage = normalizeImageUrl(carImageRaw);
-  const cardImage = get("cardImage", "カード画像URL", "カード台紙込み画像URL");
+
+  // 今後は、画像アップロード列には「文字なしの完成カード背景」を入れる。
+  // 車写真だけを重ねる方式は使わない。
+  const cardImageRaw = get(
+    "cardImage",
+    "cardBackground",
+    "cardBaseImage",
+    "カード画像URL",
+    "カード背景URL",
+    "カード台紙込み画像URL",
+    "画像アップロード",
+    "カード画像アップロード",
+    "imageUrl",
+    "画像URL"
+  );
+  const cardImage = normalizeImageUrl(cardImageRaw);
 
   if (!name) {
     return null;
@@ -610,9 +623,9 @@ function normalizeCarData(raw, index = 0) {
     name,
     rarity: get("rarity", "レア度") || "★★★★★",
     type: get("category", "type", "タイプ", "カテゴリ", "カテゴリー") || "SPECIAL",
-    cardColor: get("cardColor", "カード色") || "auto",
-    cardImage: cardImage || carImage || "./assets/prelude-card.png",
-    carImage: carImage || cardImage || "",
+    cardColor: get("cardColor", "カード色") || "image",
+    cardImage: cardImage || "./assets/prelude-card.png",
+    carImage: "",
     short: get("shortDescription", "short", "短い説明", "ひとこと説明") || `${name}の展示車です。`,
     description:
       get("description", "詳細説明", "説明", "見どころ") ||
@@ -1163,7 +1176,7 @@ function finishQuestionsAndCreateCatalog() {
     type: currentCar.type,
     cardColor: currentCar.cardColor,
     cardImage: currentCar.cardImage,
-    carImage: currentCar.carImage || "",
+    carImage: "",
     cardCatch: "あなただけのミニカタログ",
     personalText: catalogText,
     interests: tags,
@@ -1326,28 +1339,15 @@ function normalizeHondaTitle(name) {
 }
 
 function createTradingCardElement(card) {
-  const createdDate = formatDate(card.createdAt);
-  const tagsHtml = card.interests.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("");
-  const title = normalizeHondaTitle(card.carName);
-  const imageHtml = card.carImage
-    ? `<img class="simple-card-photo" src="${escapeHtml(card.carImage)}" alt="${escapeHtml(card.carName)}" onerror="this.closest('.simple-card-photo-area').classList.add('no-image'); this.remove();">`
-    : "";
+  const backgroundImage = card.cardImage || "./assets/prelude-card.png";
 
   const el = document.createElement("div");
-  el.className = "catalog-card-image catalog-card-simple";
+  el.className = "catalog-card-image catalog-card-background-only";
+  el.style.backgroundImage = `url("${escapeHtml(backgroundImage)}")`;
   el.innerHTML = `
-    <div class="simple-card-photo-area">
-      ${imageHtml}
-    </div>
-
-    <div class="simple-card-content">
-      <div class="simple-card-title">${escapeHtml(title)}</div>
-      <div class="simple-card-copy">${escapeHtml(card.cardCatch || "あなただけのミニカタログ")}</div>
+    <div class="catalog-card-text catalog-card-text-only">
+      <div class="catalog-card-copy-text">${escapeHtml(card.cardCatch || "あなただけのミニカタログ")}</div>
       <p>${escapeHtml(card.personalText)}</p>
-      <div class="catalog-card-tags simple-card-tags">
-        ${tagsHtml}
-        <span>GET ${createdDate}</span>
-      </div>
     </div>
   `;
 
