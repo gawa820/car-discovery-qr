@@ -595,7 +595,7 @@ function normalizeCarData(raw, index = 0) {
     return null;
   }
 
-  const id = get("id", "ID", "車両ID", "車ID") || `car${String(index + 1).padStart(2, "0")}`;
+  const id = get("carId", "id", "ID", "車両ID", "車ID") || `car${String(index + 1).padStart(2, "0")}`;
   const name = get("name", "車種名", "車名", "モデル名");
   const carImageRaw = get("carImage", "imageUrl", "画像URL", "車画像URL", "車の画像URL", "車の絵URL", "画像アップロード", "車画像アップロード", "imageFile", "fileUpload");
   const carImage = normalizeImageUrl(carImageRaw);
@@ -609,11 +609,11 @@ function normalizeCarData(raw, index = 0) {
     id,
     name,
     rarity: get("rarity", "レア度") || "★★★★★",
-    type: get("type", "タイプ", "カテゴリ", "カテゴリー") || "SPECIAL",
+    type: get("category", "type", "タイプ", "カテゴリ", "カテゴリー") || "SPECIAL",
     cardColor: get("cardColor", "カード色") || "auto",
     cardImage: cardImage || carImage || "./assets/prelude-card.png",
     carImage: carImage || cardImage || "",
-    short: get("short", "短い説明", "ひとこと説明") || `${name}の展示車です。`,
+    short: get("shortDescription", "short", "短い説明", "ひとこと説明") || `${name}の展示車です。`,
     description:
       get("description", "詳細説明", "説明", "見どころ") ||
       `${name}の外観、運転席、後席、荷室などを実際に見ながら、気になるポイントを確認できます。`,
@@ -754,7 +754,7 @@ function handleQrSuccess(decodedText) {
     return;
   }
 
-  const car = cars.find((item) => item.id === carId);
+  const car = cars.find((item) => String(item.id || "").trim().toLowerCase() === String(carId || "").trim().toLowerCase());
 
   if (!car) {
     showError(`車両ID「${carId}」が cars.json に見つかりません。`);
@@ -800,11 +800,17 @@ function extractCarIdFromQr(value) {
 
 function checkInitialCarFromUrl() {
   const params = new URLSearchParams(window.location.search);
-  const carId = params.get("car") || params.get("id");
-  if (!carId) return;
+  const requestedCarId = (params.get("car") || params.get("id") || "").trim();
+  if (!requestedCarId) return;
 
-  const car = cars.find((item) => item.id === carId);
-  if (!car) return;
+  const car = cars.find(
+    (item) => String(item.id || "").trim().toLowerCase() === requestedCarId.toLowerCase()
+  );
+
+  if (!car) {
+    showError(`車両ID「${requestedCarId}」が見つかりません。スプレッドシートの carId を確認してください。`);
+    return;
+  }
 
   // 外部のカメラアプリでQRを読んで ?car=car04 のURLから開いた場合も、
   // チェックを付けるだけでなく、通常のQR読み取り時と同じ発見画面を表示する。
