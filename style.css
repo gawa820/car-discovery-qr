@@ -1126,3 +1126,83 @@ a-scene {
 .large-catalog-card.catalog-card-template .template-card-body {
   font-size: clamp(12px, 2.2vw, 17px);
 }
+
+
+/* ======================================================
+   Card template ratio fix v2
+   Actual template: 1095 × 1436
+   ====================================================== */
+
+.catalog-card-image.catalog-card-template {
+  aspect-ratio: 1095 / 1436 !important;
+  max-width: 360px;
+  min-width: 270px;
+}
+
+.template-card-photo-frame {
+  left: 3.6% !important;
+  top: 2.2% !important;
+  width: 92.8% !important;
+  height: 52.4% !important;
+  border-radius: 10px !important;
+  background:
+    radial-gradient(circle at center, rgba(255,255,255,0.95), rgba(226,232,240,0.95));
+}
+
+.template-card-photo {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+}
+
+.template-card-category {
+  left: 69.8% !important;
+  top: 5.8% !important;
+  width: 24.4% !important;
+  min-height: 4.8% !important;
+  font-size: clamp(12px, 2.1vw, 22px) !important;
+  color: #f7c948 !important;
+  letter-spacing: 0.03em;
+  transform: rotate(0deg);
+}
+
+.template-card-title {
+  left: 9.5% !important;
+  top: 55.8% !important;
+  width: 81% !important;
+  min-height: 7.6% !important;
+  font-size: clamp(30px, 5.4vw, 62px) !important;
+  white-space: nowrap;
+  letter-spacing: -0.07em;
+}
+
+.template-card-description {
+  left: 8.6% !important;
+  top: 67.4% !important;
+  width: 83.2% !important;
+  height: 24.8% !important;
+}
+
+.template-card-catch {
+  font-size: clamp(11px, 2.4vw, 18px) !important;
+  margin-bottom: 6px !important;
+}
+
+.template-card-body {
+  font-size: clamp(10.5px, 2.1vw, 16px) !important;
+  line-height: 1.45 !important;
+  -webkit-line-clamp: 5 !important;
+}
+
+.large-catalog-card.catalog-card-template {
+  width: min(92vw, 480px) !important;
+}
+
+.large-catalog-card.catalog-card-template .template-card-title {
+  font-size: clamp(34px, 6.8vw, 68px) !important;
+}
+
+.large-catalog-card.catalog-card-template .template-card-body {
+  font-size: clamp(12px, 2.8vw, 18px) !important;
+}
