@@ -611,10 +611,8 @@ function normalizeCarData(raw, index = 0) {
     rarity: get("rarity", "レア度") || "★★★★★",
     type: get("category", "type", "タイプ", "カテゴリ", "カテゴリー") || "SPECIAL",
     cardColor: get("cardColor", "カード色") || "auto",
-    // cardImage は「台紙」または「完成済みカード」。
-    // carImage は「車の写真」。店舗追加車両では cardImage に車写真を入れない。
-    cardImage: cardImage || (carImage ? "./assets/card-template.png" : "./assets/prelude-card.png"),
-    carImage: carImage || "",
+    cardImage: cardImage || carImage || "./assets/prelude-card.png",
+    carImage: carImage || cardImage || "",
     short: get("shortDescription", "short", "短い説明", "ひとこと説明") || `${name}の展示車です。`,
     description:
       get("description", "詳細説明", "説明", "見どころ") ||
@@ -1165,7 +1163,7 @@ function finishQuestionsAndCreateCatalog() {
     type: currentCar.type,
     cardColor: currentCar.cardColor,
     cardImage: currentCar.cardImage,
-    carImage: currentCar.carImage || currentCar.cardImage,
+    carImage: currentCar.carImage || "",
     cardCatch: "あなただけのミニカタログ",
     personalText: catalogText,
     interests: tags,
@@ -1327,57 +1325,32 @@ function normalizeHondaTitle(name) {
   return `HONDA ${withoutHonda || raw}`.toUpperCase();
 }
 
-function isLegacyCompletedCard(card) {
-  const image = String(card.cardImage || "");
-  return /\/(prelude|nbox|superone)-card\.png$/i.test(image);
-}
-
 function createTradingCardElement(card) {
   const createdDate = formatDate(card.createdAt);
   const tagsHtml = card.interests.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("");
-
-  // 既存3車種の「完成済みカード画像」は、そのまま使う。
-  if (isLegacyCompletedCard(card) && !String(card.cardImage || "").includes("card-template")) {
-    const el = document.createElement("div");
-    el.className = "catalog-card-image";
-    el.style.backgroundImage = `url("${card.cardImage}")`;
-    el.innerHTML = `
-      <div class="catalog-card-text">
-        <p>${escapeHtml(card.personalText)}</p>
-        <div class="catalog-card-tags">
-          ${tagsHtml}
-          <span>GET ${createdDate}</span>
-        </div>
-      </div>
-    `;
-    return el;
-  }
-
-  // 店舗追加車両: 渡された card-template.png を台紙としてそのまま使い、
-  // その上に車画像・分類・車種名・説明だけを重ねる。
-  const templateSrc = "./assets/card-template.png";
-  const carPhotoHtml = card.carImage
-    ? `<img class="template-card-photo" src="${escapeHtml(card.carImage)}" alt="${escapeHtml(card.carName)}" onerror="this.style.display='none';">`
+  const title = normalizeHondaTitle(card.carName);
+  const imageHtml = card.carImage
+    ? `<img class="simple-card-photo" src="${escapeHtml(card.carImage)}" alt="${escapeHtml(card.carName)}" onerror="this.closest('.simple-card-photo-area').classList.add('no-image'); this.remove();">`
     : "";
 
   const el = document.createElement("div");
-  el.className = "catalog-card-image catalog-card-template";
+  el.className = "catalog-card-image catalog-card-simple";
   el.innerHTML = `
-    <img class="template-card-base" src="${escapeHtml(templateSrc)}" alt="">
-    <div class="template-card-photo-frame">
-      ${carPhotoHtml}
+    <div class="simple-card-photo-area">
+      ${imageHtml}
     </div>
-    <div class="template-card-category">${escapeHtml(card.type || "SPECIAL")}</div>
-    <div class="template-card-title">${escapeHtml(normalizeHondaTitle(card.carName))}</div>
-    <div class="template-card-description">
-      <p class="template-card-catch">${escapeHtml(card.cardCatch || "あなただけのミニカタログ")}</p>
-      <p class="template-card-body">${escapeHtml(card.personalText)}</p>
-      <div class="catalog-card-tags">
+
+    <div class="simple-card-content">
+      <div class="simple-card-title">${escapeHtml(title)}</div>
+      <div class="simple-card-copy">${escapeHtml(card.cardCatch || "あなただけのミニカタログ")}</div>
+      <p>${escapeHtml(card.personalText)}</p>
+      <div class="catalog-card-tags simple-card-tags">
         ${tagsHtml}
         <span>GET ${createdDate}</span>
       </div>
     </div>
   `;
+
   return el;
 }
 
