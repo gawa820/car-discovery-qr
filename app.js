@@ -413,7 +413,7 @@ async function main() {
     cars = await loadCars();
   } catch (error) {
     console.error(error);
-    showError("車データを読み込めませんでした。cars.json を確認してください。");
+    showError("車データを読み込めませんでした。スプレッドシート公開URL / cars.json を確認してください。");
     return;
   }
 
@@ -530,6 +530,58 @@ function parseCsv(text) {
   return rows.filter((items) => items.some((item) => String(item || "").trim() !== ""));
 }
 
+
+function firstUrlLikeValue(value) {
+  const text = String(value || "").trim();
+  if (!text) return "";
+
+  // Google Forms file upload can export one or more Drive links.
+  // Use the first URL-like value.
+  const match = text.match(/https?:\/\/[^\s,]+/);
+  if (match) return match[0].trim();
+
+  return text.split(/[\n,]/)[0].trim();
+}
+
+function extractGoogleDriveFileId(value) {
+  const raw = firstUrlLikeValue(value);
+  if (!raw) return "";
+
+  const patterns = [
+    /\/file\/d\/([a-zA-Z0-9_-]+)/,
+    /[?&]id=([a-zA-Z0-9_-]+)/,
+    /\/open\?id=([a-zA-Z0-9_-]+)/,
+    /\/uc\?[^#]*id=([a-zA-Z0-9_-]+)/,
+    /\/thumbnail\?[^#]*id=([a-zA-Z0-9_-]+)/
+  ];
+
+  for (const pattern of patterns) {
+    const match = raw.match(pattern);
+    if (match) return match[1];
+  }
+
+  // If the cell contains just a file ID, allow it.
+  if (/^[a-zA-Z0-9_-]{20,}$/.test(raw)) {
+    return raw;
+  }
+
+  return "";
+}
+
+function normalizeImageUrl(value) {
+  const raw = firstUrlLikeValue(value);
+  if (!raw) return "";
+
+  const driveId = extractGoogleDriveFileId(raw);
+  if (driveId) {
+    // thumbnail endpoint is img-src friendly when the Drive file is public.
+    return `https://drive.google.com/thumbnail?id=${driveId}&sz=w1600`;
+  }
+
+  return raw;
+}
+
+
 function normalizeCarData(raw, index = 0) {
   const get = (...keys) => {
     for (const key of keys) {
@@ -549,7 +601,8 @@ function normalizeCarData(raw, index = 0) {
   const id = get("carId", "id", "ID", "車両ID", "車ID") || `car${String(index + 1).padStart(2, "0")}`;
   const name = get("name", "車種名", "車名", "モデル名");
   const category = get("category", "type", "タイプ", "カテゴリ", "カテゴリー") || "SPECIAL";
-  const carImage = get("carImage", "imageUrl", "画像URL", "車画像URL", "車の画像URL", "車の絵URL");
+  const carImageRaw = get("carImage", "imageUrl", "画像URL", "車画像URL", "車の画像URL", "車の絵URL", "画像アップロード", "車画像アップロード", "imageFile", "fileUpload");
+  const carImage = normalizeImageUrl(carImageRaw);
   const cardImage = get("cardImage", "カード画像URL", "カード台紙込み画像URL");
 
   if (!name) {
