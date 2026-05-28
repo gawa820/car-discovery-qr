@@ -1206,3 +1206,119 @@ a-scene {
 .large-catalog-card.catalog-card-template .template-card-body {
   font-size: clamp(12px, 2.8vw, 18px) !important;
 }
+
+
+/* ======================================================
+   Template-preserving layer fix
+   The card base image is not replaced. Car photo is layered into the
+   photo window, then a transparent overlay of the exact template is placed
+   above it to preserve Honda logo, stars, metal frame, and black title band.
+   ====================================================== */
+
+.catalog-card-image.catalog-card-template {
+  position: relative;
+  aspect-ratio: 1095 / 1436 !important;
+  max-width: 360px;
+  min-width: 270px;
+  background: transparent !important;
+  overflow: hidden;
+}
+
+.template-card-base {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  z-index: 1 !important;
+  pointer-events: none;
+}
+
+/* Fill the whole upper window. The overlay above masks the metal border,
+   Honda mark, and star badge so the original design stays intact. */
+.template-card-photo-frame {
+  position: absolute !important;
+  left: 3.4% !important;
+  top: 1.9% !important;
+  width: 93.2% !important;
+  height: 53.2% !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  z-index: 2 !important;
+  background: transparent !important;
+}
+
+.template-card-photo {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  filter: none !important;
+}
+
+/* Exact template details above the car image */
+.template-card-overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  z-index: 3 !important;
+  pointer-events: none;
+}
+
+.template-card-category,
+.template-card-title,
+.template-card-description {
+  z-index: 4 !important;
+}
+
+/* Align text to the existing template, not to a newly generated card. */
+.template-card-category {
+  left: 70.0% !important;
+  top: 8.0% !important;
+  width: 24.0% !important;
+  min-height: 4.2% !important;
+  color: #f7c948 !important;
+  font-size: clamp(11px, 2.0vw, 21px) !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.04em;
+  text-shadow: 0 2px 3px rgba(0,0,0,0.95);
+}
+
+.template-card-title {
+  left: 8.5% !important;
+  top: 55.7% !important;
+  width: 83.0% !important;
+  min-height: 8.5% !important;
+  white-space: nowrap !important;
+  font-size: clamp(30px, 5.2vw, 64px) !important;
+  letter-spacing: -0.045em !important;
+}
+
+.template-card-description {
+  left: 8.6% !important;
+  top: 68.0% !important;
+  width: 83.0% !important;
+  height: 24.0% !important;
+  color: #1f2937 !important;
+}
+
+.template-card-catch {
+  font-size: clamp(11px, 2.2vw, 18px) !important;
+  margin-bottom: 6px !important;
+}
+
+.template-card-body {
+  font-size: clamp(10.5px, 2.0vw, 16px) !important;
+  line-height: 1.45 !important;
+  -webkit-line-clamp: 5 !important;
+}
+
+.large-catalog-card.catalog-card-template {
+  width: min(92vw, 480px) !important;
+}
+
+.large-catalog-card.catalog-card-template .template-card-title {
+  font-size: clamp(34px, 6.6vw, 70px) !important;
+}
