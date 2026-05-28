@@ -1269,10 +1269,17 @@ function renderCardCarousel() {
   });
 }
 
+
+function normalizeHondaTitle(name) {
+  const raw = String(name || "").trim();
+  const withoutHonda = raw.replace(/^honda[\\s\\u3000_-]*/i, "").trim();
+  return `HONDA ${withoutHonda || raw}`.toUpperCase();
+}
+
 function createTradingCardElement(card) {
   const createdDate = formatDate(card.createdAt);
   const tagsHtml = (card.interests || []).map((tag) => `<span>${escapeHtml(tag)}</span>`).join("");
-  const title = `HONDA ${String(card.carName || "").toUpperCase()}`;
+  const title = normalizeHondaTitle(card.carName);
   const category = card.category || card.type || "SPECIAL";
   const bodyText = card.personalText || card.description || card.short || "";
   const catchText = card.cardCatch || "あなただけのミニカタログ";
@@ -1283,7 +1290,7 @@ function createTradingCardElement(card) {
   el.innerHTML = `
     <img class="template-card-base" src="${escapeHtml(templateSrc)}" alt="カード台紙">
     <div class="template-card-photo-frame">
-      ${card.carImage ? `<img class="template-card-photo" src="${escapeHtml(card.carImage)}" alt="${escapeHtml(card.carName)}">` : ""}
+      ${card.carImage ? `<img class="template-card-photo" src="${escapeHtml(card.carImage)}" alt="${escapeHtml(card.carName)}" onerror="this.style.display=\'none\';">` : ""}
     </div>
     <div class="template-card-category">${escapeHtml(category)}</div>
     <div class="template-card-title">${escapeHtml(title)}</div>
