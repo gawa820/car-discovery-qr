@@ -1647,3 +1647,203 @@ a-scene {
   font-size: clamp(13px, 3.25vw, 18px) !important;
   -webkit-line-clamp: 8 !important;
 }
+
+
+/* ======================================================
+   QR print page
+   URL: ?qr=1 / ?qrs=1 / ?print=qr
+   ====================================================== */
+
+body.qr-print-mode {
+  height: auto !important;
+  min-height: 100%;
+  overflow: auto !important;
+  background: #f3f4f6 !important;
+  color: #111827;
+}
+
+.qr-print-page {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: 28px;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Hiragino Sans",
+    "Hiragino Kaku Gothic ProN",
+    "Yu Gothic",
+    sans-serif;
+}
+
+.qr-print-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 22px;
+  padding: 22px;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.12);
+}
+
+.qr-print-toolbar-label {
+  display: inline-block;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  color: #166534;
+  background: #dcfce7;
+}
+
+.qr-print-toolbar h1 {
+  margin: 0 0 6px;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.qr-print-toolbar p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.qr-print-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.qr-print-actions button,
+.qr-print-actions a {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 112px;
+  padding: 12px 14px;
+  border-radius: 999px;
+  border: none;
+  font-size: 14px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.qr-print-actions button {
+  color: #ffffff;
+  background: #111827;
+}
+
+.qr-print-actions a {
+  color: #111827;
+  background: #e5e7eb;
+}
+
+.qr-print-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 18px;
+}
+
+.qr-print-card {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  padding: 18px;
+  border-radius: 22px;
+  text-align: center;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.10);
+}
+
+.qr-print-header {
+  min-height: 92px;
+}
+
+.qr-print-label {
+  display: inline-block;
+  padding: 5px 8px;
+  margin-bottom: 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  color: #334155;
+  background: #f1f5f9;
+}
+
+.qr-print-card h2 {
+  margin: 0 0 4px;
+  font-size: 22px;
+  line-height: 1.15;
+  letter-spacing: -0.04em;
+}
+
+.qr-print-card p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.qr-print-image {
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  margin: 8px auto 10px;
+  display: block;
+}
+
+.qr-print-url {
+  padding: 8px;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 10px;
+  line-height: 1.4;
+  word-break: break-all;
+}
+
+.qr-print-empty {
+  padding: 24px;
+  border-radius: 18px;
+  background: #ffffff;
+  color: #475569;
+  font-weight: 800;
+}
+
+@media print {
+  body.qr-print-mode {
+    background: #ffffff !important;
+  }
+
+  .qr-print-page {
+    width: 100%;
+    padding: 0;
+  }
+
+  .qr-print-toolbar {
+    display: none;
+  }
+
+  .qr-print-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10mm;
+  }
+
+  .qr-print-card {
+    box-shadow: none;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+  }
+
+  .qr-print-image {
+    width: 42mm;
+    height: 42mm;
+  }
+}
