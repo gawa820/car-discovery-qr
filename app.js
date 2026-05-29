@@ -44,8 +44,10 @@ function buildCarUrl(carId) {
 }
 
 function buildQrImageUrl(carId, size = 320) {
-  const carUrl = buildCarUrl(carId);
-  return `https://quickchart.io/qr?text=${encodeURIComponent(carUrl)}&size=${size}&margin=2`;
+  // お客さんは先にアプリ本体を開き、そのアプリ内カメラでQRを読む。
+  // そのため、QRコードの中身はURLではなく carId だけにする。
+  // 例: car04
+  return `https://quickchart.io/qr?text=${encodeURIComponent(carId)}&size=${size}&margin=2`;
 }
 
 
@@ -679,7 +681,6 @@ function renderQrPrintPage() {
   const printableCars = cars.filter((car) => car && car.id && car.name);
   const cards = printableCars
     .map((car) => {
-      const carUrl = buildCarUrl(car.id);
       const qrUrl = buildQrImageUrl(car.id, 320);
       return `
         <section class="qr-print-card">
@@ -689,7 +690,7 @@ function renderQrPrintPage() {
             <p>ID: ${escapeHtml(car.id)}</p>
           </div>
           <img class="qr-print-image" src="${escapeHtml(qrUrl)}" alt="QR ${escapeHtml(car.id)}">
-          <div class="qr-print-url">${escapeHtml(carUrl)}</div>
+          <div class="qr-print-url">QR内容: ${escapeHtml(car.id)}</div>
         </section>
       `;
     })
@@ -701,7 +702,7 @@ function renderQrPrintPage() {
         <div>
           <div class="qr-print-toolbar-label">Car Discovery</div>
           <h1>QRコード印刷ページ</h1>
-          <p>現在のスプレッドシート / cars.json からQRコードを自動生成しています。</p>
+          <p>現在のスプレッドシート / cars.json からQRコードを自動生成しています。QRの中身はURLではなく車両IDだけです。</p>
         </div>
         <div class="qr-print-actions">
           <button type="button" onclick="window.print()">印刷する</button>
