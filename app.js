@@ -20,6 +20,35 @@ const CAR_DATA_CSV_URL =
   (window.CAR_DISCOVERY_CONFIG && window.CAR_DISCOVERY_CONFIG.sheetCsvUrl) || "";
 
 
+// ================================
+// QRコード印刷ページ設定
+// ================================
+// 使い方:
+// https://gawa820.github.io/car-discovery-qr/?qr=1
+// 上記URLを開くと、現在読み込んでいる車両データからQRコード一覧を自動生成します。
+const APP_BASE_URL =
+  (window.CAR_DISCOVERY_CONFIG && window.CAR_DISCOVERY_CONFIG.appBaseUrl) ||
+  `${window.location.origin}${window.location.pathname}`;
+
+function isQrPrintMode() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("qr") === "1" || params.get("qrs") === "1" || params.get("print") === "qr";
+}
+
+function buildCarUrl(carId) {
+  const url = new URL(APP_BASE_URL, window.location.href);
+  url.search = "";
+  url.hash = "";
+  url.searchParams.set("car", carId);
+  return url.toString();
+}
+
+function buildQrImageUrl(carId, size = 320) {
+  const carUrl = buildCarUrl(carId);
+  return `https://quickchart.io/qr?text=${encodeURIComponent(carUrl)}&size=${size}&margin=2`;
+}
+
+
 const questionFlows = {
   car01: [
     {
@@ -417,6 +446,11 @@ async function main() {
     return;
   }
 
+  if (isQrPrintMode()) {
+    renderQrPrintPage();
+    return;
+  }
+
   renderCollection();
   setupButtons();
   checkInitialCarFromUrl();
@@ -633,6 +667,55 @@ function normalizeCarData(raw, index = 0) {
     cardCatch: get("cardCatch", "キャッチコピー") || "あなただけのミニカタログ"
   };
 }
+
+
+function renderQrPrintPage() {
+  document.body.classList.add("qr-print-mode");
+
+  if (qrScanner && isQrRunning) {
+    stopQrScanner();
+  }
+
+  const printableCars = cars.filter((car) => car && car.id && car.name);
+  const cards = printableCars
+    .map((car) => {
+      const carUrl = buildCarUrl(car.id);
+      const qrUrl = buildQrImageUrl(car.id, 320);
+      return `
+        <section class="qr-print-card">
+          <div class="qr-print-header">
+            <div class="qr-print-label">CAR DISCOVERY QR</div>
+            <h2>${escapeHtml(car.name)}</h2>
+            <p>ID: ${escapeHtml(car.id)}</p>
+          </div>
+          <img class="qr-print-image" src="${escapeHtml(qrUrl)}" alt="QR ${escapeHtml(car.id)}">
+          <div class="qr-print-url">${escapeHtml(carUrl)}</div>
+        </section>
+      `;
+    })
+    .join("");
+
+  document.body.innerHTML = `
+    <main class="qr-print-page">
+      <div class="qr-print-toolbar">
+        <div>
+          <div class="qr-print-toolbar-label">Car Discovery</div>
+          <h1>QRコード印刷ページ</h1>
+          <p>現在のスプレッドシート / cars.json からQRコードを自動生成しています。</p>
+        </div>
+        <div class="qr-print-actions">
+          <button type="button" onclick="window.print()">印刷する</button>
+          <a href="${escapeHtml(APP_BASE_URL)}">アプリに戻る</a>
+        </div>
+      </div>
+
+      <div class="qr-print-grid">
+        ${cards || `<p class="qr-print-empty">表示できる車両がありません。carId と name を確認してください。</p>`}
+      </div>
+    </main>
+  `;
+}
+
 
 function setupButtons() {
   startButton.addEventListener("click", async () => {
